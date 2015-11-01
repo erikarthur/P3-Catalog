@@ -6,4 +6,54 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
+drop database if exists tournament;
 
+create database tournament;
+
+drop table if exists players;
+
+CREATE TABLE players
+(
+  "ID" serial NOT NULL,
+  name text,
+  CONSTRAINT key PRIMARY KEY ("ID")
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE players
+  OWNER TO vagrant;
+GRANT ALL ON TABLE players TO vagrant;
+GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE ON TABLE players TO public;
+
+
+drop table if exists standings;
+CREATE TABLE standings
+(
+  "ID" serial NOT NULL,
+  PLAYER_ID  INT NOT NULL,
+  POINTS INT NOT NULL
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE standings
+  OWNER TO vagrant;
+GRANT ALL ON TABLE standings TO vagrant;
+GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE ON TABLE standings TO public;
+
+
+drop table if exists matches;
+CREATE TABLE matches
+(
+  "ID" serial NOT NULL,
+  WinnerID INT NOT NULL,
+  LoserID INT NOT NULL
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE matches
+  OWNER TO vagrant;
+GRANT ALL ON TABLE matches TO vagrant;
+GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE ON TABLE matches TO public;
