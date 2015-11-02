@@ -14,7 +14,7 @@ drop table if exists players;
 
 CREATE TABLE players
 (
-  "ID" serial NOT NULL,
+  "id" serial NOT NULL,
   name text,
   CONSTRAINT key PRIMARY KEY ("ID")
 )
@@ -30,7 +30,7 @@ GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE ON TABLE players TO public;
 drop table if exists standings;
 CREATE TABLE standings
 (
-  "ID" serial NOT NULL,
+  "id" serial NOT NULL,
   PLAYER_ID  INT NOT NULL,
   POINTS INT NOT NULL
 )
@@ -46,7 +46,7 @@ GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE ON TABLE standings TO public;
 drop table if exists matches;
 CREATE TABLE matches
 (
-  "ID" serial NOT NULL,
+  "id" serial NOT NULL,
   WinnerID INT NOT NULL,
   LoserID INT NOT NULL
 )

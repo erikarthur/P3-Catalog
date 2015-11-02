@@ -1,6 +1,7 @@
 __author__ = 'erik'
 
 from tournament import Tournament
+import math
 
 t = Tournament()
 db = t.connect()
@@ -17,8 +18,14 @@ t.registerPlayer("Jake", db)
 t.registerPlayer("Adam", db)
 
 count = t.countPlayers(db)
+rounds = int(math.log(count, 2))
+currentRound = 0
+# if int(math.log(count,2)) == round(math.log(count,2)):
+#     print "int"
 
-t.playerStandings(db)
+for x in range(0, rounds):
+    print x
+    t.playerStandings(db)
+    results = t.swissPairings(db)
 
-# t.deletePlayers(db)
-print(count)
+

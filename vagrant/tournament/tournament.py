@@ -5,11 +5,10 @@
 
 import psycopg2
 
-
 class Tournament:
 
     def __init__(self):
-        self.i = 1
+        self.count = 0
 
     def deleteMatches(self, db):
         """Remove all the match records from the database."""
@@ -21,8 +20,8 @@ class Tournament:
     def connect(self):
         """Connect to the PostgreSQL database.  Returns a
         database connection."""
-        self.db = psycopg2.connect("dbname='tournament'")
-        return self.db
+        db = psycopg2.connect("dbname='tournament'")
+        return db
 
     def deletePlayers(self, db):
         """Remove all the player records from the database."""
@@ -35,10 +34,9 @@ class Tournament:
         cur = db.cursor()
         cur.execute("select count(name) from players")
         rows = cur.fetchall()
-        count = 0
-        for row in rows:
-            count += row[0]
-        return count
+        # count = 0
+        [self.count] = [row[0] for row in rows]
+        return self.count
 
     def registerPlayer(self, name, db):
         """Adds a player to the tournament database.
@@ -54,7 +52,7 @@ class Tournament:
         cur.execute('select * from players where name = %s', (name,))
         rows = cur.fetchall()
         for row in rows:
-            cur.execute('INSERT INTO standings VALUES (default, %s, %s);', (row[0],0,))
+            cur.execute('INSERT INTO standings VALUES (default, %s, %s);', (row[0], 0,))
         db.commit()
 
     def playerStandings(self, db):
@@ -74,7 +72,7 @@ class Tournament:
         print 'Rank\tName\tPoints'
         cur = db.cursor()
         cur.execute("""select name, points, random() as seed from standings,
-                    players where players."ID" = standings."ID"
+                    players where players."id" = standings."id"
                     order by points desc, seed desc;""")
         rows = cur.fetchall()
         rank = 1
@@ -107,5 +105,20 @@ class Tournament:
             id2: the second player's unique id
             name2: the second player's name
         """
+        cur = db.cursor()
+        cur.execute("""select players.id, name, points, random() as seed from standings,
+                    players where players."id" = standings."id"
+                    order by points desc, seed desc;""")
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+
+        results = []
+        for x in xrange(0, len(rows), 2):
+            results.append( (rows[x][0], rows[x][1], rows[x+1][0], rows[x+1][1]) )
+
+        # print results
+        return results
+
 
 
