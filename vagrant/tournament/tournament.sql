@@ -16,7 +16,7 @@ CREATE TABLE players
 (
   "id" serial NOT NULL,
   name text,
-  CONSTRAINT key PRIMARY KEY ("ID")
+  CONSTRAINT key PRIMARY KEY ("id")
 )
 WITH (
   OIDS=FALSE
@@ -32,7 +32,9 @@ CREATE TABLE standings
 (
   "id" serial NOT NULL,
   PLAYER_ID  INT NOT NULL,
-  POINTS INT NOT NULL
+  MATCHES INT NOT NULL,
+  WINS  INT NOT NULL,
+  LOSSES INT NOT NULL
 )
 WITH (
   OIDS=FALSE

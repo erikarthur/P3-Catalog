@@ -52,7 +52,7 @@ class Tournament:
         cur.execute('select * from players where name = %s', (name,))
         rows = cur.fetchall()
         for row in rows:
-            cur.execute('INSERT INTO standings VALUES (default, %s, %s);', (row[0], 0,))
+            cur.execute('INSERT INTO standings VALUES (default, %s, %s, %s, %s);', (row[0], 0, 0, 0))
         db.commit()
 
     def playerStandings(self, db):
@@ -71,15 +71,23 @@ class Tournament:
         print "\nCurrent Tournament Standings\n"
         print 'Rank\tName\tPoints'
         cur = db.cursor()
-        cur.execute("""select name, points, random() as seed from standings,
+        cur.execute("""select players.id, name, wins, matches from standings,
                     players where players."id" = standings."id"
-                    order by points desc, seed desc;""")
+                    order by wins desc, name asc;""")
         rows = cur.fetchall()
-        rank = 1
+        rank = 0
+        currentWins = -1
+        currentStandings = []
         for row in rows:
-            print '{0}\t{1}\t{2}'.format(rank, row[0], row[1])
-            rank = rank + 1
+            if currentWins != row[2]:
+                rank = rank + 1
+                currentWins = row[2]
+
+            currentStandings.append((row[0], row[1], row[2], row[3]))
+            print '{0}\t{1}\t{2}'.format(rank, row[1], row[2])
+            # rank = rank + 1
         print '\n-----------------------------\n'
+        return currentStandings
 
     def reportMatch(self, db, winner, loser):
         """Records the outcome of a single match between two players.
@@ -90,7 +98,8 @@ class Tournament:
         """
         cur = db.cursor()
         cur.execute('insert into matches values (default, %s, %s);', (winner, loser,))
-        cur.execute('update standings set points = points + 1 where player_id = %s;', (winner,))
+        cur.execute('update standings set matches = matches + 1, wins = wins + 1  where player_id = %s;', (winner,))
+        cur.execute('update standings set matches = matches + 1, losses = losses + 1 where player_id = %s;', (loser,))
         db.commit()
 
     def swissPairings(self, db):
@@ -109,9 +118,9 @@ class Tournament:
             name2: the second player's name
         """
         cur = db.cursor()
-        cur.execute("""select players.id, name, points, random() as seed from standings,
+        cur.execute("""select players.id, name, wins, random() as seed from standings,
                     players where players."id" = standings."id"
-                    order by points desc, seed desc;""")
+                    order by wins desc, seed desc;""")
         rows = cur.fetchall()
 
         results = []
