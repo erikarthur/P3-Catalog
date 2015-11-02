@@ -2,6 +2,7 @@ __author__ = 'erik'
 
 from tournament import Tournament
 import math
+import random
 
 t = Tournament()
 db = t.connect()
@@ -24,8 +25,17 @@ currentRound = 0
 #     print "int"
 
 for x in range(0, rounds):
-    print x
+    print 'Round {0} Matches\n'.format(x+1)
+    pairings = t.swissPairings(db)
+    for pair in pairings:
+        if random.random() < .5:
+            # first player won
+            t.reportMatch(db, pair[0], pair[2])
+            print 'Winner: {0}\tLoser: {1}'.format(pair[1], pair[3])
+        else:
+            t.reportMatch(db, pair[2], pair[0])
+            print 'Winner: {0}\tLoser: {1}'.format(pair[3], pair[1])
+        # results.append((rows[x][0], rows[x][1], rows[x+1][0], rows[x+1][1]))
     t.playerStandings(db)
-    results = t.swissPairings(db)
 
 

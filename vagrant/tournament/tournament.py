@@ -68,7 +68,7 @@ class Tournament:
             wins: the number of matches the player has won
             matches: the number of matches the player has played
         """
-        print "\n\nCurrent Tournament Standings\n"
+        print "\nCurrent Tournament Standings\n"
         print 'Rank\tName\tPoints'
         cur = db.cursor()
         cur.execute("""select name, points, random() as seed from standings,
@@ -79,16 +79,19 @@ class Tournament:
         for row in rows:
             print '{0}\t{1}\t{2}'.format(rank, row[0], row[1])
             rank = rank + 1
-        print
+        print '\n-----------------------------\n'
 
-    def reportMatch(self, winner, loser):
+    def reportMatch(self, db, winner, loser):
         """Records the outcome of a single match between two players.
 
         Args:
           winner:  the id number of the player who won
           loser:  the id number of the player who lost
         """
-
+        cur = db.cursor()
+        cur.execute('insert into matches values (default, %s, %s);', (winner, loser,))
+        cur.execute('update standings set points = points + 1 where player_id = %s;', (winner,))
+        db.commit()
 
     def swissPairings(self, db):
         """Returns a list of pairs of players for the next round of a match.
@@ -110,14 +113,11 @@ class Tournament:
                     players where players."id" = standings."id"
                     order by points desc, seed desc;""")
         rows = cur.fetchall()
-        # for row in rows:
-        #     print(row)
 
         results = []
         for x in xrange(0, len(rows), 2):
-            results.append( (rows[x][0], rows[x][1], rows[x+1][0], rows[x+1][1]) )
-
-        # print results
+            results.append((rows[x][0], rows[x][1], rows[x+1][0], rows[x+1][1]))
+        #print results
         return results
 
 
