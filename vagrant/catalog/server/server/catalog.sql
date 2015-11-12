@@ -10,6 +10,8 @@
 
 --create database tournament;--
 
+CREATE EXTENSION IF NOT EXISTS citext;
+
 DROP TABLE if EXISTS categories CASCADE;
 
 CREATE TABLE categories
@@ -17,6 +19,7 @@ CREATE TABLE categories
   id serial NOT NULL,
   category CITEXT,
   owner_id integer,
+  category_insert_date timestamp without time zone DEFAULT now(),
   CONSTRAINT categories_pk PRIMARY KEY (id)
 )
 WITH (
@@ -36,6 +39,7 @@ CREATE TABLE items
   item_name CITEXT,
   item_description text,
   item_picture text,
+  item_insert_date timestamp without time zone DEFAULT now(),
   CONSTRAINT items_pk PRIMARY KEY (id)
 )
 WITH (
@@ -52,6 +56,7 @@ CREATE TABLE owners
   id serial NOT NULL,
   owner_id integer,
   owner_name CITEXT,
+  owner_email CITEXT,
   CONSTRAINT owners_pk PRIMARY KEY (id)
 )
 WITH (
@@ -61,22 +66,22 @@ ALTER TABLE owners
   OWNER TO vagrant;
 GRANT ALL ON TABLE owners TO vagrant;
 
-INSERT INTO owners(id, owner_id, owner_name) VALUES (default, 1, 'Erik Arthur');
-INSERT INTO owners(id, owner_id, owner_name) VALUES (default, 2, 'Terry Arthur');
-INSERT INTO owners(id, owner_id, owner_name) VALUES (default, 3, 'Zach Arthur');
-INSERT INTO owners(id, owner_id, owner_name) VALUES (default, 4, 'Maddie Arthur');
-INSERT INTO owners(id, owner_id, owner_name) VALUES (default, 5, 'Jack Arthur');
-INSERT INTO owners(id, owner_id, owner_name) VALUES (default, 6, 'Carol Arthur');
+INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 1, 'Erik Arthur', 'erik@arthurweb.org');
+INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 2, 'E Arthur', 'erikarthur@gmail.com');
+INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 3, 'Zach Arthur', 'zmaster97@live.com');
+INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 4, 'Maddie Arthur', 'madz1313@live.com');
+INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 5, 'Jack Arthur', 'jwa@arthurweb.org');
+INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 6, 'Carol Arthur', 'carthur@hotmail.com');
 
 INSERT INTO categories(id, owner_id, category) VALUES (default, 1, 'Skateboards');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 1, 'Snowboards');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 2, 'Candles');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 3, 'Instruments');
-INSERT INTO categories(id, owner_id, category) VALUES (default, 3, 'Video Games');
+INSERT INTO categories(id, owner_id, category) VALUES (default, 3, 'Video-Games');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 4, 'Soccer');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 4, 'Recipes');
-INSERT INTO categories(id, owner_id, category) VALUES (default, 5, 'TV Programs');
-INSERT INTO categories(id, owner_id, category) VALUES (default, 5, 'Remote Controls');
+INSERT INTO categories(id, owner_id, category) VALUES (default, 5, 'TV-Programs');
+INSERT INTO categories(id, owner_id, category) VALUES (default, 5, 'Remote-Controls');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 6, 'Quilting');
 INSERT INTO categories(id, owner_id, category) VALUES (default, 6, 'Sewing');
 
@@ -126,30 +131,3 @@ INSERT INTO items(id, category, item_owner, item_name) VALUES (default, 11, 6, '
 INSERT INTO items(id, category, item_owner, item_name) VALUES (default, 11, 6, 'Sewing Machine');
 
 
--- CREATE OR REPLACE VIEW player_standings_view AS
---  SELECT players.id,
---     players.name,
---     standings.wins,
---     standings.matches
---    FROM standings,
---     players
---   WHERE players.id = standings.id
---   ORDER BY standings.wins DESC, players.name;
-
--- ALTER TABLE "player_standings_view"
---   OWNER TO vagrant;
-
--- CREATE OR REPLACE VIEW swiss_pairings_view AS
---  SELECT players.id,
---     players.name,
---     standings.wins,
---     random() AS seed,
---     standings.ties,
---     standings.used_bye
---    FROM standings,
---     players
---   WHERE players.id = standings.id
---   ORDER BY standings.wins DESC, seed DESC;
-
--- ALTER TABLE swiss_pairings_view
---   OWNER TO vagrant;

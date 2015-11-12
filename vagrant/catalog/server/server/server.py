@@ -39,7 +39,7 @@ def get_cursor():
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Catalog server.  Query from front end'
 
 @app.route('/categories')
 def get_all_categories():
@@ -51,37 +51,50 @@ def get_all_categories():
         items_list = []
 
         for item in rows:
-            datum = {'id': item[0], 'category': item[1]}
+            datum = {'id': item[0], 'category': item[1].replace(" ", "-")}
             items_list.append(datum)
 
-        j = json.dumps(items_list)
+        json_returned = json.dumps(items_list)
 
-        return Response(j, status=200, mimetype="application/json")
+        return Response(json_returned, status=200, mimetype="application/json")
+
+@app.route('/latest-items')
+def get_latest_items():
+     with get_cursor() as cursor:
+        cursor.execute("SELECT item_name, item_description, item_picture FROM items order by item_insert_date desc "
+                       "limit 10;")
+        rows = cursor.fetchall()
+
+        items_list = []
+
+        for item in rows:
+            datum = {'name': item[0], 'description': item[1], 'picture' :
+                     item[2]}
+            items_list.append(datum)
+
+        json_returned = json.dumps(items_list)
+
+        return Response(json_returned, status=200, mimetype="application/json")
 
 @app.route('/category/<category>')
 def get_category(category):
     """Remove all the match records from the database."""
     with get_cursor() as cursor:
-        cursor.execute('select * from categories where category = %s '
-                       'order by category asc;', (category, ))
-        rows = cursor.fetchall()
+        cursor.execute('select * from categories, items where categories.id = items.category and categories.category = %s;', (category, ))
+        items = cursor.fetchall()
 
         items_list = []
 
-        if rows:
-            cursor.execute('select *  from items where category = %s',
-                           (rows[0][0],))
-            items = cursor.fetchall()
-
+        if items:
             for item in items:
                 list_item = {'id': item[0], 'category': item[1],
-                         'item_name': item[3],'item_description': item[4],
-                         'item_picture' : item[5]}
+                         'item_name': item[7],'item_description': item[8],
+                         'item_picture' : item[9]}
                 items_list.append(list_item)
 
-            j = json.dumps(items_list)
+            json_returned = json.dumps(items_list)
 
-            return Response(j, status=200, mimetype="application/json")
+            return Response(json_returned, status=200, mimetype="application/json")
         else:
             return Response(items_list, status=200, mimetype="application/json")
 
