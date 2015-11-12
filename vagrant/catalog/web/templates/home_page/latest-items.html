@@ -1,0 +1,17 @@
+<div style="display: inline-block;overflow-y: scroll;height: inherit; width:80%">
+    <h1>Latest Catalog Items</h1>
+    {% for latest_item in latest_items %}
+        <div style="margin-bottom: 10px">
+            <div>
+                <h3>{{ latest_item.name }}</h3>
+            </div>
+            <div>
+                {{ latest_item.description }}
+            </div>
+            <div>
+                {{ latest_item.picture }}
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
