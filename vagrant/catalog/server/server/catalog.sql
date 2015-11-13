@@ -66,6 +66,25 @@ ALTER TABLE owners
   OWNER TO vagrant;
 GRANT ALL ON TABLE owners TO vagrant;
 
+DROP VIEW if exists category_view CASCADE;
+
+CREATE OR REPLACE VIEW category_view AS
+ SELECT items.id,
+    items.item_name,
+    items.item_description,
+    items.item_picture,
+    owners.owner_email,
+    owners.owner_name,
+    categories.category
+   FROM items,
+    owners,
+    categories
+  WHERE items.category = categories.id AND owners.owner_id = items.item_owner;
+
+ALTER TABLE category_view
+  OWNER TO vagrant;
+
+
 INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 1, 'Erik Arthur', 'erik@arthurweb.org');
 INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 2, 'E Arthur', 'erikarthur@gmail.com');
 INSERT INTO owners(id, owner_id, owner_name, owner_email) VALUES (default, 3, 'Zach Arthur', 'zmaster97@live.com');
