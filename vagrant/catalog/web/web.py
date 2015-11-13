@@ -11,31 +11,40 @@ import json
 
 
 app = Flask(__name__)
-server_ip = 'http://192.168.221.132'
-server_port = 7000
-# server_str = server_ip + ":" + server_port
+
+cs_file_path = os.path.join(os.path.dirname(__file__), 'settings.json')
+# app_id = open(cs_file_path, 'r').read()
+
+with open(cs_file_path) as data_file:
+    data = json.load(data_file)
+    server_str = 'http://%s:%d' % (data['servers']['server'],
+                                   data['servers']['serverPort'])
+    web_str = 'http://%s:%d' % (data['servers']['web'],
+                                   data['servers']['webPort'])
 
 @app.route('/')
 def hello_world():
-    r = requests.get('http://192.168.221.132:7000/categories')
+    hostCategories = '%s/categories' % server_str
+    hostLatestItems = '%s/latest-items' % server_str
+    r = requests.get(hostCategories)
     categories = r.json()
-    r = requests.get('http://192.168.221.132:7000/latest-items')
+    r = requests.get(hostLatestItems)
     latest_items = r.json()
     return render_template(
         "home_page/homepage.html", categories=categories,
-        latest_items=latest_items, server='http://192.168.221.133:8000/category/',
-        home='http://192.168.221.133:8000')
+        latest_items=latest_items, server='http://192.168.0.119:8000/category/',
+        home='http://192.168.0.119:8000')
 
 @app.route('/category/<name>')
 def get_category_items(name):
-    r = requests.get('http://192.168.221.132:7000/category/' + name)
+    r = requests.get('http://192.168.0.117:7000/category/' + name)
     category = r.json()
-    r = requests.get('http://192.168.221.132:7000/categories')
+    r = requests.get('http://192.168.0.117:7000/categories')
     categories = r.json()
     return render_template(
         "item_page/item-page.html", categories=categories, category=category,
-        name=name, server='http://192.168.221.133:8000/category/',
-        home='http://192.168.221.133:8000')
+        name=name, server='http://192.168.0.119:8000/category/',
+        home='http://192.168.0.119:8000')
 
 @app.route('/gconnect', methods=['POST'])
 def post_signin():
