@@ -11,6 +11,7 @@ import json
 
 
 app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'settings.json')
 # app_id = open(cs_file_path, 'r').read()

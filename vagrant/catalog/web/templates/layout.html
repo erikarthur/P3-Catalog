@@ -3,9 +3,7 @@
 <head>
     <meta chaarset="UTF-8">
     <title>Catalog Homepage</title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="{{ url_for('static', filename='js/social_login.js') }}"></script>
-
+    <script src="//aax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="//apis.google.com/js/platform.js?onload=start"> </script>
 </head>
 <body>
@@ -16,6 +14,6 @@
 </div>
 {% include 'common/footer.html' %}
 <div id="result"></div>
-
+<script src="{{ url_for('static/js', filename='social_login.js') }}"></script>
 </body>
 </html>
