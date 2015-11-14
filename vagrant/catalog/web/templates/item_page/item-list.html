@@ -11,6 +11,9 @@
             <div>
                 {{ item.item_picture }}
             </div>
+            {% if owner == item.email %}
+            <div>{{ item.email }}</div>
+            {% endif  %}
         </div>
     {% endfor %}
 

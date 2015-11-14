@@ -22,6 +22,10 @@ with open(cs_file_path) as data_file:
     web_str = 'http://%s:%d' % (data['servers']['web'],
                                    data['servers']['webPort'])
 
+cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
+CLIENT_ID = json.loads(
+    open(cs_file_path, 'r').read())['web']['client_id']
+
 @app.route('/')
 def hello_world():
     hostCategories = '%s/categories' % server_str
@@ -44,15 +48,15 @@ def get_category_items(name):
     return render_template(
         "item_page/item-page.html", categories=categories, category=category,
         name=name, server='http://192.168.0.119:8000/category/',
-        home='http://192.168.0.119:8000')
+        home='http://192.168.0.119:8000', owner=login_session['email'])
 
 @app.route('/gconnect', methods=['POST'])
 def post_signin():
     # Validate state token
-    if request.args.get('state') != login_session['state']:
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+    # if request.args.get('state') != login_session['state']:
+    #     response = make_response(json.dumps('Invalid state parameter.'), 401)
+    #     response.headers['Content-Type'] = 'application/json'
+    #     return response
     # Obtain authorization code, now compatible with Python3
     request.get_data()
     code = request.data.decode('utf-8')
