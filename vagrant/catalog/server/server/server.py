@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, json, Response
+from flask import Flask, jsonify, json, Response, request
 import psycopg2
 import random
 import contextlib
@@ -80,16 +80,18 @@ def get_latest_items():
 def get_category(category):
     """Remove all the match records from the database."""
     with get_cursor() as cursor:
-        cursor.execute('select * from categories, items where categories.id = items.category and categories.category = %s;', (category, ))
+        cursor.execute('select * from category_view where category = %s;',
+                       (category, ))
         items = cursor.fetchall()
 
         items_list = []
 
         if items:
             for item in items:
-                list_item = {'id': item[0], 'category': item[1],
-                         'item_name': item[7],'item_description': item[8],
-                         'item_picture' : item[9]}
+                list_item = {'id': item[0], 'category': item[6],
+                         'item_name': item[1], 'item_description': item[2],
+                         'item_picture': item[3], 'owner': item[5],
+                         'email': item[4]}
                 items_list.append(list_item)
 
             json_returned = json.dumps(items_list)
@@ -97,6 +99,19 @@ def get_category(category):
             return Response(json_returned, status=200, mimetype="application/json")
         else:
             return Response(items_list, status=200, mimetype="application/json")
+
+@app.route('/addcategory', methods=['POST'])
+def add_category():
+    if app.secret_key == request.form['secret']:
+        owner_id = request.form['owner_id']
+        category = request.form['category']
+        with get_cursor() as cursor:
+            cursor.execute('INSERT INTO categories(id, owner_id, category) '
+                           'VALUES (default, %s, %s);', (owner_id, category, ))
+
+            return Response(None, status=200, mimetype="application/json")
+    else:
+        return Response(None, status=201, mimetype="application/json")
 
 if __name__ == '__main__':
     app.secret_key = 'm-Ho83cJFux7J3XOJPfoz2IP'
