@@ -10,7 +10,7 @@ import httplib2
 import json
 
 
-app = Flask(__name__)
+# app = Flask(__name__)
 app = Flask(__name__, static_url_path='/static')
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'settings.json')
@@ -36,14 +36,17 @@ def hello_world():
     r = requests.get(hostLatestItems)
     latest_items = r.json()
     return render_template(
-        "home_page/homepage.html", categories=categories,
+        "home_page/latest-items.html", categories=categories,
         latest_items=latest_items, server='http://192.168.0.119:8000/category/',
         home='http://192.168.0.119:8000')
 
 @app.route('/category/<name>')
 def get_category_items(name):
     r = requests.get('http://192.168.0.117:7000/category/' + name)
-    category = r.json()
+    if len(r.text) != 0:
+        category = r.json()
+    else:
+        category = []
     r = requests.get('http://192.168.0.117:7000/categories')
     categories = r.json()
     return render_template(

@@ -1,5 +1,24 @@
-<div style="display: inline-block;overflow-y: scroll;height: inherit; width:80%">
-    <h1>Latest Catalog Items</h1>
+{% extends 'layout.html' %}
+
+{% block navigation %}
+    <div style="display:inline-block;vertical-align: top; width:19%">
+        <h2>Navigation</h2>
+
+        <div>
+            <a href={{ home }}>Home</a>
+         </div>
+
+        {% for category in categories%}
+            <div>
+                <a href={{ server }}{{ category.category }}>{{ category.category }}</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block latest_content %}
+    <div style="display: inline-block;overflow-y: scroll;height: inherit; width:80%">
+    <h2>Latest Catalog Items</h2>
     {% for latest_item in latest_items %}
         <div style="margin-bottom: 10px">
             <div>
@@ -13,5 +32,5 @@
             </div>
         </div>
     {% endfor %}
-
-</div>
+    </div>
+{% endblock %}
