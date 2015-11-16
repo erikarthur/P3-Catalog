@@ -15,8 +15,8 @@ app = Flask(__name__)
 def connect():
     """Connect to the PostgreSQL database.  Returns a
     database connection."""
-    db = psycopg2.connect("dbname=catalog user=erik "
-                          "password=erik host=localhost")
+    db = psycopg2.connect("dbname=catalog user=postgres "
+                          "password=postgres host=localhost")
     return db
 
 @contextlib.contextmanager
