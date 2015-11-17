@@ -8,9 +8,9 @@
             <a href={{ home }}>Home</a>
          </div>
 
-        {% for category in categories%}
+        {% for category_item in categories%}
             <div>
-                <a href={{ server }}{{ category.category }}>{{ category.category }}</a>
+                <a href={{ server }}{{ category_item[1] }}>{{ category_item[1] }}</a>
             </div>
         {% endfor %}
     </div>
@@ -18,17 +18,17 @@
 
 {% block latest_content %}
     <div style="display: inline-block;overflow-y: scroll;height: inherit; width:80%">
-    <h2>Latest Catalog Items</h2>
-    {% for latest_item in latest_items %}
+    <h2>{{ name }} Catalog Items</h2>
+    {% for item in category %}
         <div style="margin-bottom: 10px">
             <div>
-                <h3>{{ latest_item.name }}</h3>
+                <h3>{{ item[1] }}</h3>
             </div>
             <div>
-                {{ latest_item.description }}
+                {{ item[2] }}
             </div>
             <div>
-                {{ latest_item.picture }}
+                {{ item[3] }}
             </div>
         </div>
     {% endfor %}

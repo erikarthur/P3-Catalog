@@ -3,56 +3,23 @@ from flask import jsonify, url_for, flash, make_response
 from flask import session as login_session
 import requests
 import os
+from flask import Response
+import psycopg2
+import random
+import contextlib
+import json
+import requests
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
 import json
 
-
-# app = Flask(__name__)
-app = Flask(__name__, static_url_path='/static')
-
-cs_file_path = os.path.join(os.path.dirname(__file__), 'settings.json')
-# app_id = open(cs_file_path, 'r').read()
-
-with open(cs_file_path) as data_file:
-    data = json.load(data_file)
-    server_str = 'http://%s:%d' % (data['servers']['server'],
-                                   data['servers']['serverPort'])
-    web_str = 'http://%s:%d' % (data['servers']['web'],
-                                   data['servers']['webPort'])
+from catalog import app
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
 CLIENT_ID = json.loads(
-    open(cs_file_path, 'r').read())['web']['client_id']
-
-@app.route('/')
-def hello_world():
-    hostCategories = '%s/categories' % server_str
-    hostLatestItems = '%s/latest-items' % server_str
-    r = requests.get(hostCategories)
-    categories = r.json()
-    r = requests.get(hostLatestItems)
-    latest_items = r.json()
-    return render_template(
-        "home_page/latest-items.html", categories=categories,
-        latest_items=latest_items, server='http://192.168.0.119:8000/category/',
-        home='http://192.168.0.119:8000')
-
-@app.route('/category/<name>')
-def get_category_items(name):
-    r = requests.get('http://192.168.0.117:7000/category/' + name)
-    if len(r.text) != 0:
-        category = r.json()
-    else:
-        category = []
-    r = requests.get('http://192.168.0.117:7000/categories')
-    categories = r.json()
-    return render_template(
-        "item_page/item-page.html", categories=categories, category=category,
-        name=name, server='http://192.168.0.119:8000/category/',
-        home='http://192.168.0.119:8000', owner=login_session['email'])
+    open(cs_file_path, 'r').read())['catalog']['client_id']
 
 @app.route('/gconnect', methods=['POST'])
 def post_signin():
@@ -159,9 +126,9 @@ def fbconnect():
 
     cs_file_path = os.path.join(os.path.dirname(__file__), 'fb_client_secrets.json')
     app_id = json.loads(open(cs_file_path, 'r').read())[
-        'web']['app_id']
+        'catalog']['app_id']
     app_secret = json.loads(
-        open(cs_file_path, 'r').read())['web']['app_secret']
+        open(cs_file_path, 'r').read())['catalog']['app_secret']
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
         app_id, app_secret, access_token)
     h = httplib2.Http()
@@ -218,9 +185,3 @@ def fbconnect():
 
     flash("Now logged in as %s" % login_session['username'])
     return output
-
-if __name__ == '__main__':
-    app.secret_key = 'm-Ho83cJFux7J3XOJPfoz2IP'
-    app.debug = True
-    app.run(host='0.0.0.0', port=8000)
-    app.run()

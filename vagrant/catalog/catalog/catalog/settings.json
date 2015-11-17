@@ -1,8 +1,8 @@
 {
   "servers": {
-    "web": "192.168.0.119",
+    "web": "localhost",
     "webPort" : 8000,
-    "server": "192.168.0.117",
+    "server": "localhost",
     "serverPort" : 7000
   }
 }

@@ -5,6 +5,8 @@ import contextlib
 import json
 import requests
 
+from catalog import app
+
 # import sys
 # sys.path.append('pycharm-debug.egg')
 #

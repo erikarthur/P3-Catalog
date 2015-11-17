@@ -19,7 +19,7 @@ function signInCallback(authResult) {
   if (authResult['code']) {
     // Hide the sign-in button now that the user is authorized
       displaySigninButtons();
-    // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+    // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the catalog page and then redirect back to the main restaurants page
     $.ajax({
       type: 'POST',
       url: '/gconnect?state={{STATE}}',
