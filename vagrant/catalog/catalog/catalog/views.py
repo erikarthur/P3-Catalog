@@ -15,6 +15,10 @@ from oauth2client.client import FlowExchangeError
 import httplib2
 import json
 
+from wtforms import Form, TextField, validators
+
+from form_classes import Category, Catalog_Item
+
 from catalog import app
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'settings.json')
@@ -33,8 +37,7 @@ CLIENT_ID = json.loads(
 def connect():
     """Connect to the PostgreSQL database.  Returns a
     database connection."""
-    db = psycopg2.connect("dbname=catalog user=postgres "
-                          "password=postgres host=localhost")
+    db = psycopg2.connect("dbname=catalog user=postgres password=postgres host=localhost")
     return db
 
 @contextlib.contextmanager
@@ -65,6 +68,7 @@ def get_categories():
 
     return categories
 
+
 def get_latest_items():
     """Returns the most recent 10 items in the catalog.  """
     with get_cursor() as cursor:
@@ -74,6 +78,7 @@ def get_latest_items():
         latest_items = cursor.fetchall()
 
     return latest_items
+
 
 def get_category(name):
     with get_cursor() as cursor:
@@ -85,6 +90,7 @@ def get_category(name):
 
         return category_items
 
+
 @app.route('/')
 def hello_world():
 
@@ -92,9 +98,10 @@ def hello_world():
     latest_items = get_latest_items()
 
     return render_template(
-        "home_page/latest-items.html", categories=categories,
-        latest_items=latest_items, server='http://localhost:8000/category/',
-        home='http:/localhost:8000')
+        "pages/latest-items.html", categories=categories,
+        latest_items=latest_items, server='http://192.168.0.119:8000/category/',
+        home='http:/192.168.0.119:8000')
+
 
 @app.route('/category/<name>')
 def get_category_items(name):
@@ -103,8 +110,25 @@ def get_category_items(name):
     category = get_category(name)
 
     return render_template(
-        "item_page/item-page.html", categories=categories, category=category,
-        name=name, server='http:/localhost:8000/category/',
-        home='http://localhost:8000')
+        "pages/item-page.html", categories=categories, category=category,
+        name=name, server='/category/',
+        home='/')
+
+
+@app.route('/add-category', methods=['GET', 'POST'])
+def add_category():
+    form = Category(request.form)
+
+    if request.method == 'POST' and form.validate():
+        # add data
+        with get_cursor() as cursor:
+            cate = form.data['category_name']
+            cursor.execute(
+                'INSERT INTO categories VALUES (default, %s, 1, now());',
+                (cate,))
+        return redirect( url_for('hello_world') )
+    return render_template('pages/add-category.html', form=form)
+
+
 
 
