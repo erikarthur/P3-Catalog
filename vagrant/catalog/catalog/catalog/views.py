@@ -32,7 +32,7 @@ with open(cs_file_path) as data_file:
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
 CLIENT_ID = json.loads(
-    open(cs_file_path, 'r').read())['catalog']['client_id']
+    open(cs_file_path, 'r').read())['web']['client_id']
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a
