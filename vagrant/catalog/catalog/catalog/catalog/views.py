@@ -6,6 +6,7 @@ import os
 from flask import Response
 import psycopg2
 import random
+import string
 import contextlib
 import json
 import requests
@@ -20,6 +21,7 @@ from wtforms import Form, TextField, validators
 from form_classes import Category, Catalog_Item
 
 from catalog import app
+from database_functions import connect, get_cursor
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'settings.json')
 
@@ -34,29 +36,6 @@ cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
 CLIENT_ID = json.loads(
     open(cs_file_path, 'r').read())['web']['client_id']
 
-def connect():
-    """Connect to the PostgreSQL database.  Returns a
-    database connection."""
-    db = psycopg2.connect("dbname=catalog user=postgres password=postgres host=localhost")
-    return db
-
-@contextlib.contextmanager
-def get_cursor():
-    """
-    Helper function for using cursors.  Helps to avoid a lot of connect,
-    execute, commit code
-    """
-    conn = connect()
-    cur = conn.cursor()
-    try:
-        yield cur
-    except:
-        raise
-    else:
-        conn.commit()
-    finally:
-        cur.close()
-        conn.close()
 
 def get_categories():
     """Returns the catagores in the catalog"""
@@ -97,10 +76,14 @@ def hello_world():
     categories = get_categories()
     latest_items = get_latest_items()
 
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+
     return render_template(
         "pages/latest-items.html", categories=categories,
         latest_items=latest_items, server='http://192.168.0.119:8000/category/',
-        home='http:/192.168.0.119:8000')
+        home='http:/192.168.0.119:8000', STATE=state)
 
 
 @app.route('/category/<name>')
@@ -117,18 +100,26 @@ def get_category_items(name):
 
 @app.route('/add-category', methods=['GET', 'POST'])
 def add_category():
-    form = Category(request.form)
 
-    if request.method == 'POST' and form.validate():
-        # add data
-        with get_cursor() as cursor:
-            cate = form.data['category_name']
-            cursor.execute(
-                'INSERT INTO categories VALUES (default, %s, 1, now());',
-                (cate,))
-        return redirect( url_for('hello_world') )
-    return render_template('pages/add-category.html', form=form)
+    if login_session['email']:
+        form = Category(request.form)
 
+        if request.method == 'POST' and form.validate():
+            # add data
+            with get_cursor() as cursor:
+                cursor.execute(
+                    'select owner_id from owners where owner_email = %s;',
+                    (login_session['email'],))
+                print login_session['email']
+                output = cursor.fetchall()
+                user_id = output[0][0]
+
+                cate = form.data['category_name']
+                cursor.execute(
+                    'INSERT INTO categories VALUES (default, %s, %s, now());',
+                    (cate,user_id,))
+            return redirect( url_for('hello_world') )
+        return render_template('pages/add-category.html', form=form)
 
 
 

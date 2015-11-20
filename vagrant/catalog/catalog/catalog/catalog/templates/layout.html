@@ -1,4 +1,22 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta chaarset="UTF-8">
+    <title>Catalog Homepage</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+    <script src="//apis.google.com/js/platform.js?onload=start"> </script>
+</head>
+<body>
+    {% include 'common/header.html' %}
+    <div style="height: 500px;">
+        {% block navigation %} {% endblock %}
+        {% block content %} {% endblock %}
+    </div>
+    {% include 'common/footer.html' %}
+    <div id="result"></div>
+<script>
+    /**
  * Created by erik on 11/14/15.
  */
 
@@ -116,3 +134,7 @@ function signInCallback(authResult) {
   }
 
 
+
+</script>
+</body>
+</html>

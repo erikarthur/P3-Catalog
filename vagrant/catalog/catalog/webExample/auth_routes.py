@@ -15,14 +15,15 @@ from oauth2client.client import FlowExchangeError
 import httplib2
 import json
 
-from catalog import app
+from webExample import app
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
 CLIENT_ID = json.loads(
     open(cs_file_path, 'r').read())['web']['client_id']
 
+
 @app.route('/gconnect', methods=['POST'])
-def post_signin():
+def gconnect():
     # Validate state token
     try:
         testVar = session['state']
@@ -89,6 +90,7 @@ def post_signin():
 
     # Store the access token in the session for later use.
     session['access_token'] = access_token
+    # session['credentials'] = credentials
     session['gplus_id'] = gplus_id
 
     # Get user info
@@ -102,15 +104,13 @@ def post_signin():
     session['picture'] = data['picture']
     session['email'] = data['email']
 
-    returnData = {}
-    returnData['auth_service'] = "Google"
-    returnData['picture'] = data['picture']
-    returnData['name'] =  data['name']
-    returnData['email'] = data['email']
-    returnData['social_id'] = session['gplus_id']
+    returnData = {'auth_service': 'Google', 'picture': data['picture'],
+                  'name': data['name'], 'email': data['email'],
+                  'social_id': session['gplus_id']}
 
-    jsonReturned = json.dumps(returnData)
-    return jsonReturned
+    json_returned = json.dumps(returnData)
+    return json_returned
+
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
@@ -176,3 +176,41 @@ def fbconnect():
     jsonReturn = json.dumps(returnData)
     # flash("Now logged in as %s" % session['username'])
     return jsonReturn
+
+@app.route('/fbdisconnect')
+def fbdisconnect():
+    facebook_id = session['facebook_id']
+    # The access token must me included to successfully logout
+    access_token = session['access_token']
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    h = httplib2.Http()
+    result = h.request(url, 'DELETE')[1]
+    return "you have been logged out"
+
+@app.route('/gdisconnect')
+def gdisconnect():
+    # Only disconnect a connected user.
+     # session['access_token'] = access_token
+    access_token = session['access_token']
+    # credentials = session.get('credentials')
+    if access_token is None:
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # access_token = credentials.access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] != '200':
+        # For whatever reason, the given token was invalid.
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        session.clear()
+        response = make_response(
+            json.dumps('Logged outr.', 200))
+        response.headers['Content-Type'] = 'application/json'
+        return response

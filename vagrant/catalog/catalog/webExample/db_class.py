@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+
 class Owners(Base):
     __tablename__ = 'owners'
 
